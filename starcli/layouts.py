@@ -1,13 +1,12 @@
 """ starcli.layouts """
 
 # Standard library imports
-import textwrap
 import math
-from shutil import get_terminal_size
 
 # Third party imports
+from rich import box
 from rich.align import Align
-from rich.console import Console, group
+from rich.console import Console, group, Group
 from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
@@ -160,8 +159,9 @@ def grid_layout(repos):
         name = Text(repo["name"], style="bold yellow")
         name.stylize(f"link {repo['html_url']}")
         language = Text(repo["language"], style="magenta")
-        description = Text(repo["description"], style="green")
+        description = Text(repo["description"], style="green", overflow="ellipsis")
         stats = Text(stats, style="blue")
+        url = Text(repo["html_url"], style="grey", overflow="ellipsis")
 
         # truncate rest of the description if
         # it's more than 90 (max_desc_len) chars
@@ -177,11 +177,15 @@ def grid_layout(repos):
             date_range_str,
             language,
             "\n",
-            description,
+            description
         )
-        panels.append(Panel(repo_summary, expand=True))
+        gr = Group(
+            Panel(repo_summary, width=30, box=box.SIMPLE, padding=0),
+            Panel(url, box=box.SIMPLE, padding=0)
+        )
+        panels.append(Panel(gr, expand=False, padding=0))
 
-    console.print((Columns(panels, width=30, expand=True)))
+    console.print(Columns(panels, expand=False))
 
 
 def print_results(*args, page=False, layout=""):
